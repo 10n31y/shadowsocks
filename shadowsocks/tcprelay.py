@@ -1014,9 +1014,7 @@ class TCPRelayHandler(object):
                             sa[1])
                 if self._server.multi_user_table[
                         self._current_user_id]['_disconnect_ipset']:
-                    if common.get_ip_md5(
-                            self._client_address[0],
-                            self._server._config['ip_md5_salt']) in self._server.multi_user_table[
+                    if self._client_address[0] in self._server.multi_user_table[
                             self._current_user_id]['_disconnect_ipset']:
                         if self._remote_address:
                             raise Exception(
@@ -1054,8 +1052,7 @@ class TCPRelayHandler(object):
                             'Port %d is in forbidden list, reject' %
                             sa[1])
                 if self._server._disconnect_ipset:
-                    if common.get_ip_md5(self._client_address[0], self._server._config[
-                                         'ip_md5_salt']) in self._server._disconnect_ipset:
+                    if self._client_address[0] in self._server._disconnect_ipset:
                         if self._remote_address:
                             raise Exception(
                                 'IP %s is in disconnect list, when connect to %s:%d via port %d' %

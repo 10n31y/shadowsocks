@@ -506,11 +506,8 @@ class UDPRelay(object):
                     if uid not in self.mu_detect_log_list:
                         self.mu_detect_log_list[uid] = []
 
-                    if common.get_ip_md5(
-                            r_addr[0],
-                            self._config['ip_md5_salt']) not in self.mu_connected_iplist[uid]:
-                        self.mu_connected_iplist[uid].append(
-                            common.get_ip_md5(r_addr[0], self._config['ip_md5_salt']))
+                    if r_addr[0] not in self.mu_connected_iplist[uid]:
+                        self.mu_connected_iplist[uid].append(r_addr[0])
 
                 else:
                     raise Exception(
