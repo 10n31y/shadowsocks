@@ -475,16 +475,16 @@ class TCPRelayHandler(object):
             if af == socket.AF_INET6:
                 self._remote_sock_v6.sendto(data, (server_addr, remote_addr[1]))
                 if self._udpv6_send_pack_id == 0:
-                    addr, port = self._remote_sock_v6.getsockname()[:2]
-                    common.connect_log('UDPv6 sendto %s(%s):%d from %s:%d by user %d' %
-                        (common.to_str(remote_addr[0]), common.to_str(server_addr), remote_addr[1], addr, port, self._current_user_id))
+                    self._sock_address = self._remote_sock_v6.getsockname()[:2]
+                    common.connect_log('xLOG UDPoverTCP connecting %s:%d from %s:%d via port %d Relay via %d' %
+                        (common.to_str(server_addr[0]),dest_port,self._client_address[0],self._client_address[1],self._listen_port,self._sock_address[1]))
                 self._udpv6_send_pack_id += 1
             else:
                 self._remote_sock.sendto(data, (server_addr, remote_addr[1]))
                 if self._udp_send_pack_id == 0:
-                    addr, port = self._remote_sock.getsockname()[:2]
-                    common.connect_log('UDP sendto %s(%s):%d from %s:%d by user %d' %
-                        (common.to_str(remote_addr[0]), common.to_str(server_addr), remote_addr[1], addr, port, self._current_user_id))
+                    self._sock_address = sock.getsockname()[:2]
+                    common.connect_log('xLOG UDPoverTCP connecting %s:%d from %s:%d via port %d Relay via %d' %
+                        (common.to_str(server_addr[0]),dest_port,self._client_address[0],self._client_address[1],self._listen_port,self._sock_address[1]))
                 self._udp_send_pack_id += 1
             return True
         except Exception as e:
@@ -890,21 +890,14 @@ class TCPRelayHandler(object):
                                     self._client_address[0],
                                     self._client_address[1],
                                     self._server._listen_port))
-                if self._config['is_multi_user'] == 0 and common.get_ip_md5(self._client_address[0], self._server._config[
-                                                                            'ip_md5_salt']) not in self._server.connected_iplist and self._client_address[0] != 0 and self._server.is_cleaning_connected_iplist == False:
-                    self._server.connected_iplist.append(
-                        common.get_ip_md5(
-                            self._client_address[0],
-                            self._server._config['ip_md5_salt']))
+                if self._config['is_multi_user'] == 0 and self._client_address[0] not in self._server.connected_iplist and self._client_address[0] != 0 and self._server.is_cleaning_connected_iplist == False:
+                    self._server.connected_iplist.append(self._client_address[0])
 
                 if self._config[
                         'is_multi_user'] != 0 and self._current_user_id != 0:
-                    if common.get_ip_md5(
-                            self._client_address[0],
-                            self._server._config['ip_md5_salt']) not in self._server.mu_connected_iplist[
+                    if self._client_address[0] not in self._server.mu_connected_iplist[
                             self._current_user_id] and self._client_address[0] != 0:
-                        self._server.mu_connected_iplist[self._current_user_id].append(
-                            common.get_ip_md5(self._client_address[0], self._server._config['ip_md5_salt']))
+                        self._server.mu_connected_iplist[self._current_user_id].append(self._client_address[0])
 
                 if self._client_address[0] in self._server.wrong_iplist and self._client_address[
                         0] != 0 and self._server.is_cleaning_wrong_iplist == False:
@@ -1158,9 +1151,14 @@ class TCPRelayHandler(object):
                                 else:
                                     raise e
 
-                            addr, port = self._remote_sock.getsockname()[:2]
-                            common.connect_log('TCP connecting %s(%s):%d from %s:%d by user %d' %
-                                (common.to_str(self._remote_address[0]), common.to_str(remote_addr), remote_port, addr, port, self._current_user_id))
+                            self._sock_address = remote_sock.getsockname()[:2]
+                            common.connect_log('xLOG TCP connecting %s:%d from %s:%d via port %d Relay via %d' %
+                                (remote_addr,
+                                remote_port,
+                                self._client_address[0],
+                                self._client_address[1],
+                                self._server._listen_port,
+                                self._sock_address[1]))
 
                             self._loop.add(remote_sock,
                                        eventloop.POLL_ERR | eventloop.POLL_OUT,
