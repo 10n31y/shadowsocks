@@ -671,10 +671,9 @@ class UDPRelay(object):
                     if common.to_str(r_addr[0]) in self.wrong_iplist and r_addr[
                             0] != 0 and self.is_cleaning_wrong_iplist == False:
                         del self.wrong_iplist[common.to_str(r_addr[0])]
-                    if common.get_ip_md5(r_addr[0], self._config['ip_md5_salt']) not in self.connected_iplist and r_addr[
+                    if r_addr[0] not in self.connected_iplist and r_addr[
                             0] != 0 and self.is_cleaning_connected_iplist == False:
-                        self.connected_iplist.append(common.get_ip_md5(
-                            r_addr[0], self._config['ip_md5_salt']))
+                        self.connected_iplist.append(r_addr[0])
             else:
                 client, client_uid = client_pair
             self._cache.clear(self._udp_cache_size)
@@ -700,9 +699,9 @@ class UDPRelay(object):
             client.sendto(data, (server_addr, server_port))
             self.add_transfer_u(client_uid, len(data))
             if client_pair is None: # new request
-                addr, port = client.getsockname()[:2]
-                common.connect_log('UDP data to %s(%s):%d from %s:%d by user %d' %
-                        (common.to_str(remote_addr[0]), common.to_str(server_addr), server_port, addr, port, user_id))
+                self._sock_address = client.getsockname()[:2]
+                common.connect_log('xLOG UDP connecting %s:%d from %s:%d via port %d Relay via %d' %
+                    (common.to_str(server_addr),server_port,r_addr[0],r_addr[1],self._listen_port,self._sock_address[1]))
         except IOError as e:
             err = eventloop.errno_from_exception(e)
             logging.warning('IOError sendto %s:%d by user %d' % (server_addr, server_port, user_id))
