@@ -2062,6 +2062,12 @@ class TCPRelay(object):
         del self.detect_log_list[:]
         self.is_cleaning_detect_log = False
 
+    #Fawkes's LCS Features
+    def connect_log_list_clean(self):
+        self.is_cleaning_connect_log = True
+        del self.connect_log_list[:]
+        self.is_cleaning_connect_log = False
+
     def push_relay_rules(self, rules):
         self.is_pushing_relay_rules = True
         self.relay_rules = rules.copy()

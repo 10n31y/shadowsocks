@@ -43,6 +43,17 @@ class DbTransfer(object):
         self.node_ip_list = []
         self.mu_port_list = []
 
+    #Fawkes's LCS Features
+    def logs(self):
+        latest_log = ServerPool.get_instance().get_servers_connect_log()
+
+        all_log = {}
+
+    def log_update(self, all_log):
+        import cymysql
+
+    #END of Fawkes's LCS Features
+
     def update_all_user(self, dt_transfer):
         import cymysql
         update_transfer = {}

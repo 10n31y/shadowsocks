@@ -35,9 +35,9 @@ MYSQL_SSL_KEY = ''
 # Log Centralized System
 LCS_MYSQL_HOST = '127.0.0.1'
 LCS_MYSQL_PORT = 3306
-LCS_MYSQL_USER = 'ss'
-LCS_MYSQL_PASS = 'ss'
-LCS_MYSQL_DB = 'shadowsocks'
+LCS_MYSQL_USER = 'lcs'
+LCS_MYSQL_PASS = 'lcs'
+LCS_MYSQL_DB = 'lcs'
 
 LCS_MYSQL_SSL_ENABLE = 0
 LCS_MYSQL_SSL_CA = ''
