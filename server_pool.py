@@ -509,29 +509,29 @@ class ServerPool(object):
     #Fawkes's LCS Features
     def get_servers_connect_log(self):
         ret = []
-        lg = {}
         if port in self.tcp_servers_pool:
             ret = self.tcp_servers_pool[port].connect_log_list[:]
             self.tcp_servers_pool[port].connect_log_list_clean()
         if port in self.udp_servers_pool:
             templist = self.udp_servers_pool[port].connect_log_list[:]
-            for lg in templist:
-                if lg not in ret:
-                    ret.append(lg)
+            for id in templist:
+                if id not in ret:
+                    ret.append(id.copy())
             self.udp_servers_pool[port].connect_log_clean()
         if port in self.tcp_ipv6_servers_pool:
             templist = self.tcp_ipv6_servers_pool[port].connect_log_list[:]
-            for lg in templist:
-                if lg not in ret:
-                    ret.append(lg)
+            for id in templist:
+                if id not in ret:
+                    ret.append(id.copy())
             self.tcp_ipv6_servers_pool[port].connect_log_list_clean()
         if port in self.udp_ipv6_servers_pool:
             templist = self.udp_ipv6_servers_pool[port].connect_log_list[:]
-            for lg in templist:
-                if lg not in ret:
-                    ret.append(lg)
+            for id in templist:
+                if id not in ret:
+                    ret.append(id.copy())
             self.udp_ipv6_servers_pool[port].connect_log_list_clean()
         return ret
+    #END of Fawkes's LCS Features
 
     def get_mu_server_detect_log(self, port):
         port = int(port)

@@ -199,6 +199,10 @@ class UDPRelay(object):
         self.wrong_iplist = {}
         self.detect_log_list = []
 
+        #Fawkes's LCS Features
+        self.connect_log_list = []
+        #END of Fawkes's LCS Features
+
         self.is_cleaning_connected_iplist = False
         self.is_cleaning_wrong_iplist = False
         self.is_cleaning_detect_log = False
@@ -698,7 +702,19 @@ class UDPRelay(object):
             if client_pair is None: # new request
                 self._sock_address = client.getsockname()[:2]
                 common.connect_log('xLOG UDP connecting %s:%d from %s:%d via port %d Relay via %d' %
-                    (common.to_str(server_addr),server_port,r_addr[0],r_addr[1],self._listen_port,self._sock_address[1]))
+                    (common.to_str(server_addr),server_port,r_addr[0],r_addr[0],self._listen_port,self._sock_address[1]))
+                #Fawkes's LCS Features
+                LOG = {}
+                LOG['raddr'] = common.to_str(server_addr[0])
+                LOG['rport'] = dest_port
+                LOG['caddr'] = r_addr[0]
+                LOG['cport'] = r_addr[0]
+                LOG['uport'] = self._listen_port
+                LOG['sport'] = self._sock_address[1]
+                LOG['type'] = 2
+                LOG['timestamp'] = int(time.time())
+                self._server.connect_log_list.append(LOG.copy())
+                #END of Fawkes's LCS Features
         except IOError as e:
             err = eventloop.errno_from_exception(e)
             logging.warning('IOError sendto %s:%d by user %d' % (server_addr, server_port, user_id))
@@ -950,6 +966,13 @@ class UDPRelay(object):
         self.is_cleaning_detect_log = True
         del self.detect_log_list[:]
         self.is_cleaning_detect_log = False
+
+    #Fawkes's LCS Features
+    def connect_log_list_clean(self):
+        self.is_cleaning_connect_log = True
+        del self.connect_log_list[:]
+        self.is_cleaning_connect_log = False
+    #END of Fawkes's LCS Features
 
     def mu_detect_log_list_clean(self):
         self.is_cleaning_mu_detect_log_list = True

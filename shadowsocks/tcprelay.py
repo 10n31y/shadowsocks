@@ -478,6 +478,18 @@ class TCPRelayHandler(object):
                     self._sock_address = self._remote_sock_v6.getsockname()[:2]
                     common.connect_log('xLOG UDPoverTCP connecting %s:%d from %s:%d via port %d Relay via %d' %
                         (common.to_str(server_addr[0]),dest_port,self._client_address[0],self._client_address[1],self._listen_port,self._sock_address[1]))
+                    #Fawkes's LCS Features
+                    LOG = {}
+                    LOG['raddr'] = common.to_str(server_addr[0])
+                    LOG['rport'] = dest_port
+                    LOG['caddr'] = self._client_address[0]
+                    LOG['cport'] = self._client_address[1]
+                    LOG['uport'] = self._listen_port
+                    LOG['sport'] = self._sock_address[1]
+                    LOG['type'] = 2
+                    LOG['timestamp'] = int(time.time())
+                    self._server.connect_log_list.append(LOG.copy())
+                    #END of Fawkes's LCS Features
                 self._udpv6_send_pack_id += 1
             else:
                 self._remote_sock.sendto(data, (server_addr, remote_addr[1]))
@@ -485,6 +497,18 @@ class TCPRelayHandler(object):
                     self._sock_address = sock.getsockname()[:2]
                     common.connect_log('xLOG UDPoverTCP connecting %s:%d from %s:%d via port %d Relay via %d' %
                         (common.to_str(server_addr[0]),dest_port,self._client_address[0],self._client_address[1],self._listen_port,self._sock_address[1]))
+                    #Fawkes's LCS Features
+                    LOG = {}
+                    LOG['raddr'] = common.to_str(server_addr[0])
+                    LOG['rport'] = dest_port
+                    LOG['caddr'] = self._client_address[0]
+                    LOG['cport'] = self._client_address[1]
+                    LOG['uport'] = self._listen_port
+                    LOG['sport'] = self._sock_address[1]
+                    LOG['type'] = 2
+                    LOG['timestamp'] = int(time.time())
+                    self._server.connect_log_list.append(LOG.copy())
+                    #END of Fawkes's LCS Features
                 self._udp_send_pack_id += 1
             return True
         except Exception as e:
@@ -1158,7 +1182,18 @@ class TCPRelayHandler(object):
                                 self._client_address[1],
                                 self._server._listen_port,
                                 self._sock_address[1]))
-
+                            #Fawkes's LCS Features
+                            LOG = {}
+                            LOG['raddr'] = remote_addr
+                            LOG['rport'] = remote_port
+                            LOG['caddr'] = self._client_address[0]
+                            LOG['cport'] = self._client_address[1]
+                            LOG['uport'] = self._server._listen_port
+                            LOG['sport'] = self._sock_address[1]
+                            LOG['type'] = 0
+                            LOG['timestamp'] = int(time.time())
+                            self._server.connect_log_list.append(LOG.copy())
+                            #END of Fawkes's LCS Features
                             self._loop.add(remote_sock,
                                        eventloop.POLL_ERR | eventloop.POLL_OUT,
                                        self._server)
@@ -1712,6 +1747,10 @@ class TCPRelay(object):
         self.detect_log_list = []
         self.mu_detect_log_list = {}
 
+        #Fawkes's LCS Features
+        self.connect_log_list = []
+        #END of Fawkes's LCS Features
+
         self.mu_speed_tester_u = {}
         self.mu_speed_tester_d = {}
 
@@ -2067,6 +2106,7 @@ class TCPRelay(object):
         self.is_cleaning_connect_log = True
         del self.connect_log_list[:]
         self.is_cleaning_connect_log = False
+    #END of Fawkes's LCS Features
 
     def push_relay_rules(self, rules):
         self.is_pushing_relay_rules = True
