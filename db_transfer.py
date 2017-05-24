@@ -44,13 +44,50 @@ class DbTransfer(object):
         self.mu_port_list = []
 
     #Fawkes's LCS Features
-    def logs(self):
-        latest_log = ServerPool.get_instance().get_servers_connect_log()
-
-        all_log = {}
-
-    def log_update(self, all_log):
+    def connect_log_update(self):
         import cymysql
+
+        if get_config().LCS_MYSQL_SSL_ENABLE == 1:
+            lcs_conn = cymysql.connect(
+                host=get_config().LCS_MYSQL_HOST,
+                port=get_config().LCS_MYSQL_PORT,
+                user=get_config().LCS_MYSQL_USER,
+                passwd=get_config().LCS_MYSQL_PASS,
+                db=get_config().LCS_MYSQL_DB,
+                charset='utf8',
+                ssl={
+                    'ca': get_config().LCS_MYSQL_SSL_CA,
+                    'cert': get_config().LCS_MYSQL_SSL_CERT,
+                    'key': get_config().LCS_MYSQL_SSL_KEY})
+        else:
+            lcs_conn = cymysql.connect(
+                host=get_config().LCS_MYSQL_HOST,
+                port=get_config().LCS_MYSQL_PORT,
+                user=get_config().LCS_MYSQL_USER,
+                passwd=get_config().LCS_MYSQL_PASS,
+                db=get_config().LCS_MYSQL_DB,
+                charset='utf8')
+
+        lcs_conn.autocommit(True)
+
+        nid = get_config().NODE_ID
+        connect_log_list = []
+        connect_log_list = ServerPool.get_instance().get_servers_connect_log()
+        for id in connect_log_list:
+            lcs = lcs_conn.cursor()
+            lcs.execute("INSERT INTO `user_connect_log` (`id`,`timestamp`,`node`,`uid`,`uport`,`caddr`,`cport`,`raddr`,`rport`,`sport`,`type`) VALUES (NULL, '" +
+                        str(id['timestamp']) + "','" +
+                        str(nid) + "','" + 
+                        str(self.port_uid_table[id['uport']]) + "','" +
+                        str(id['uport']) + "','" +
+                        str(id['caddr']) + "','" +
+                        str(id['cport']) + "','" +
+                        str(id['raddr']) + "','" +
+                        str(id['rport']) + "','" +
+                        str(id['sport']) + "','" +
+                        str(id['type']) + "')"
+            )
+            lcs.close()
 
     #END of Fawkes's LCS Features
 
@@ -295,6 +332,7 @@ class DbTransfer(object):
                                  [0], last[1] + dt_transfer[id][1]]
         self.last_update_transfer = last_transfer.copy()
         self.update_all_user(dt_transfer)
+        self.connect_log_update()
 
     def pull_db_all_user(self):
         import cymysql
