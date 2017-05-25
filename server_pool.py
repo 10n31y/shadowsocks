@@ -540,7 +540,7 @@ class ServerPool(object):
         servers.update(self.udp_ipv6_servers_pool)
         ret = []
         for port in servers.keys():
-            templist = self.get_server_detect_log(port)
+            templist = self.get_server_connect_log(port)
             for id in templist:
                 if id not in ret:
                     ret.append(id.copy())
