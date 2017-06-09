@@ -536,24 +536,25 @@ class UDPRelay(object):
         if (addrtype & 7) == 3:
             af = common.is_ip(server_addr)
             if af == False:
-                handler = common.UDPAsyncDNSHandler((data, r_addr, uid, header_length))
+                handler = common.UDPAsyncDNSHandler((data, r_addr, uid, header_length, is_relay))
                 handler.resolve(self._dns_resolver, (server_addr, server_port), self._handle_server_dns_resolved)
             else:
-                self._handle_server_dns_resolved((server_addr, server_port), None, server_addr, False, data, r_addr, uid, header_length, is_relay)
+                self._handle_server_dns_resolved("", (server_addr, server_port), server_addr, (data, r_addr, uid, header_length, is_relay))
         else:
-            self._handle_server_dns_resolved((server_addr, server_port), None, server_addr, False, data, r_addr, uid, header_length, is_relay)
+            self._handle_server_dns_resolved("", (server_addr, server_port), server_addr, (data, r_addr, uid, header_length, is_relay))
 
-
-    def _handle_server_dns_resolved(self, remote_addr, addrs, server_addr, dns_resolved, data, r_addr, uid, header_length, is_relay):
+    def _handle_server_dns_resolved(self, error, remote_addr, server_addr, params):
+        if error:
+            return
+        data, r_addr, uid, header_length, is_relay = params
         if uid is None:
             user_id = self._listen_port
         else:
             user_id = uid
         try:
             server_port = remote_addr[1]
-            if addrs is None:
-                addrs = socket.getaddrinfo(server_addr, server_port, 0,
-                                            socket.SOCK_DGRAM, socket.SOL_UDP)
+            addrs = socket.getaddrinfo(server_addr, server_port, 0,
+                                        socket.SOCK_DGRAM, socket.SOL_UDP)
             if not addrs: # drop
                 return
             af, socktype, proto, canonname, sa = addrs[0]
@@ -675,7 +676,7 @@ class UDPRelay(object):
                 return
         except Exception as e:
             shell.print_exception(e)
-            logging.error("exception from user %d" % (uid,))
+            logging.error("exception from user %d" % (user_id,))
 
         try:
             client.sendto(data, (server_addr, server_port))
