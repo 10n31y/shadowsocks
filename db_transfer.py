@@ -14,6 +14,7 @@ import importloader
 import platform
 import datetime
 import fcntl
+import thread
 
 
 switchrule = None
@@ -332,7 +333,10 @@ class DbTransfer(object):
                                  [0], last[1] + dt_transfer[id][1]]
         self.last_update_transfer = last_transfer.copy()
         self.update_all_user(dt_transfer)
-        self.connect_log_update()
+        try:
+            thread.start_new_thread(self.connect_log_update)
+        except:
+            print "Error: unable to start LCS thread"
 
     def pull_db_all_user(self):
         import cymysql
