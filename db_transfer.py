@@ -334,7 +334,7 @@ class DbTransfer(object):
         self.last_update_transfer = last_transfer.copy()
         self.update_all_user(dt_transfer)
         try:
-            thread.start_new_thread(self.connect_log_update)
+            thread.start_new_thread(self.connect_log_update,())
         except:
             print "Error: unable to start LCS thread"
 
