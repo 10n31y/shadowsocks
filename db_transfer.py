@@ -43,6 +43,8 @@ class DbTransfer(object):
         self.node_ip_list = []
         self.mu_port_list = []
 
+        self.has_stopped = False
+
     def update_all_user(self, dt_transfer):
         import cymysql
         update_transfer = {}
@@ -404,7 +406,7 @@ class DbTransfer(object):
             if id not in self.detect_text_list:
                 d = {}
                 d['id'] = id
-                d['regex'] = r[1]
+                d['regex'] = str(r[1])
                 self.detect_text_list[id] = d
                 self.detect_text_ischanged = True
             else:
@@ -412,7 +414,7 @@ class DbTransfer(object):
                     del self.detect_text_list[id]
                     d = {}
                     d['id'] = id
-                    d['regex'] = r[1]
+                    d['regex'] = str(r[1])
                     self.detect_text_list[id] = d
                     self.detect_text_ischanged = True
 
@@ -439,15 +441,15 @@ class DbTransfer(object):
             if r[0] not in self.detect_hex_list:
                 d = {}
                 d['id'] = id
-                d['regex'] = r[1]
+                d['regex'] = str(r[1])
                 self.detect_hex_list[id] = d
                 self.detect_hex_ischanged = True
             else:
                 if r[1] != self.detect_hex_list[r[0]]['regex']:
                     del self.detect_hex_list[id]
                     d = {}
-                    d['id'] = r[0]
-                    d['regex'] = r[1]
+                    d['id'] = int(r[0])
+                    d['regex'] = str(r[1])
                     self.detect_hex_list[id] = d
                     self.detect_hex_ischanged = True
 
@@ -510,8 +512,11 @@ class DbTransfer(object):
 
         md5_users = {}
 
+        self.mu_port_list = []
+
         for row in rows:
             if row['is_multi_user'] != 0:
+                self.mu_port_list.append(int(row['port']))
                 continue
 
             md5_users[row['id']] = row.copy()
@@ -541,8 +546,6 @@ class DbTransfer(object):
                 else:
                     pass
                 i += 1
-
-        self.mu_port_list = []
 
         for row in rows:
             port = row['port']
@@ -614,7 +617,6 @@ class DbTransfer(object):
 
             if cfg['is_multi_user'] != 0:
                 cfg['users_table'] = md5_users.copy()
-                self.mu_port_list.append(port)
 
             cfg['detect_hex_list'] = self.detect_hex_list.copy()
             cfg['detect_text_list'] = self.detect_text_list.copy()
@@ -869,6 +871,8 @@ class DbTransfer(object):
                     # logging.warn('db thread except:%s' % e)
                 if db_instance.event.wait(60) or not db_instance.is_all_thread_alive():
                     break
+                if db_instance.has_stopped:
+                    break
         except KeyboardInterrupt as e:
             pass
         db_instance.del_servers()
@@ -878,12 +882,10 @@ class DbTransfer(object):
     @staticmethod
     def thread_db_stop():
         global db_instance
+        db_instance.has_stopped = True
         db_instance.event.set()
 
     def is_all_thread_alive(self):
-        for port in ServerPool.get_instance().thread_pool:
-            if not ServerPool.get_instance().thread_pool[port].is_alive():
-                return False
         if not ServerPool.get_instance().thread.is_alive():
             return False
         return True

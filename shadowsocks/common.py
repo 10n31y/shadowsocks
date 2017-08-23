@@ -24,8 +24,11 @@ import logging
 import binascii
 import re
 import hashlib
+import random
 from configloader import load_config, get_config
 
+
+from shadowsocks import lru_cache
 
 def compat_ord(s):
     if isinstance(s, int):
@@ -59,6 +62,14 @@ def to_str(s):
         if isinstance(s, bytes):
             return s.decode('utf-8')
     return s
+
+def random_base64_str(randomlength = 8):
+    str = ''
+    chars = 'ABCDEF0123456789'
+    length = len(chars) - 1
+    for i in range(randomlength):
+        str += chars[random.randint(0, length)]
+    return str
 
 
 def int32(x):
@@ -282,6 +293,9 @@ def parse_header(data):
         return None
     return connecttype, addrtype, to_bytes(dest_addr), dest_port, header_length
 
+def getRealIp(ip):
+    return to_str(ip.replace("::ffff:", ""))
+
 
 class IPNetwork(object):
     ADDRLENGTH = {socket.AF_INET: 32, socket.AF_INET6: 128, False: 0}
@@ -298,6 +312,9 @@ class IPNetwork(object):
     def add_network(self, addr):
         if addr is "":
             return
+
+        addr = addr.replace("::ffff:", "")
+
         block = addr.split('/')
         addr_family = is_ip(block[0])
         addr_len = IPNetwork.ADDRLENGTH[addr_family]
@@ -326,6 +343,8 @@ class IPNetwork(object):
             self._network_list_v6.append((ip, prefix_size))
 
     def __contains__(self, addr):
+        addr = addr.replace("::ffff:", "")
+
         addr_family = is_ip(addr)
         if addr_family is socket.AF_INET:
             ip, = struct.unpack("!I", socket.inet_aton(addr))
@@ -342,6 +361,11 @@ class IPNetwork(object):
     def __cmp__(self, other):
         return cmp(self.addrs_str, other.addrs_str)
 
+    def __eq__(self, other):
+        return self.addrs_str == other.addrs_str
+
+    def __ne__(self, other):
+        return self.addrs_str != other.addrs_str
 
 class PortRange(object):
 
@@ -375,6 +399,39 @@ class PortRange(object):
     def __cmp__(self, other):
         return cmp(self.range_str, other.range_str)
 
+    def __eq__(self, other):
+        return self.range_str == other.range_str
+
+    def __ne__(self, other):
+        return self.range_str != other.range_str
+
+class UDPAsyncDNSHandler(object):
+    dns_cache = lru_cache.LRUCache(timeout=1800)
+    def __init__(self, params):
+        self.params = params
+        self.remote_addr = None
+        self.call_back = None
+
+    def resolve(self, dns_resolver, remote_addr, call_back):
+        if remote_addr in UDPAsyncDNSHandler.dns_cache:
+            if call_back:
+                call_back("", remote_addr, UDPAsyncDNSHandler.dns_cache[remote_addr], self.params)
+        else:
+            self.call_back = call_back
+            self.remote_addr = remote_addr
+            dns_resolver.resolve(remote_addr[0], self._handle_dns_resolved)
+            UDPAsyncDNSHandler.dns_cache.sweep()
+
+    def _handle_dns_resolved(self, result, error):
+        if error:
+            logging.error("%s when resolve DNS" % (error,)) #drop
+            return self.call_back(error, self.remote_addr, None, self.params)
+        if result:
+            ip = result[1]
+            if ip:
+                return self.call_back("", self.remote_addr, ip, self.params)
+        logging.warning("can't resolve %s" % (self.remote_addr,))
+        return self.call_back("fail to resolve", self.remote_addr, None, self.params)
 
 def test_inet_conv():
     ipv4 = b'8.8.4.4'
