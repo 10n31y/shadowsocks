@@ -684,13 +684,13 @@ class UDPRelay(object):
             if client_pair is None: # new request
                 self._sock_address = client.getsockname()[:2]
                 common.connect_log('xLOG UDP connecting %s:%d from %s:%d via port %d Relay via %d' %
-                    (common.to_str(server_addr),server_port,r_addr[0],r_addr[0],self._listen_port,self._sock_address[1]))
+                    (common.to_str(server_addr),server_port,r_addr[0],r_addr[1],self._listen_port,self._sock_address[1]))
                 #Fawkes's LCS Features
                 LOG = {}
                 LOG['raddr'] = common.to_str(server_addr[0])
-                LOG['rport'] = dest_port
+                LOG['rport'] = server_port
                 LOG['caddr'] = r_addr[0]
-                LOG['cport'] = r_addr[0]
+                LOG['cport'] = r_addr[1]
                 LOG['uport'] = self._listen_port
                 LOG['sport'] = self._sock_address[1]
                 LOG['type'] = 2
