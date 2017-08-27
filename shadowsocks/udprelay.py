@@ -746,7 +746,7 @@ class UDPRelay(object):
                 else:
                     LOG['is_ipv6'] = 0
                 LOG['timestamp'] = int(time.time())
-                self._server.connect_log_list.append(LOG.copy())
+                self.connect_log_list.append(LOG.copy())
                 #END of Fawkes's LCS Features
         except IOError as e:
             err = eventloop.errno_from_exception(e)
