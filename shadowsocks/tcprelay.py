@@ -846,14 +846,13 @@ class TCPRelayHandler(object):
                 #        (self._user_id, ))
             else:
                 common.connect_log(
-                    '%s connecting %s:%d from %s:%d via port %d,hex data : %s' %
+                    '%s connecting %s:%d from %s:%d via port %d' %
                     ((connecttype == 0) and 'TCP' or 'UDP',
                      common.to_str(remote_addr),
                         remote_port,
                         self._client_address[0],
                         self._client_address[1],
-                        self._server._listen_port,
-                        binascii.hexlify(data)))
+                        self._server._listen_port))
             if not is_error:
                 if not self._server.is_pushing_detect_text_list:
                     for id in self._server.detect_text_list:

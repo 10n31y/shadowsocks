@@ -14,6 +14,7 @@ import importloader
 import platform
 import datetime
 import fcntl
+import thread
 
 
 switchrule = None
@@ -48,6 +49,7 @@ class DbTransfer(object):
     #Fawkes's LCS Features
     def connect_log_update(self):
         import cymysql
+        logging.info("Connect logs uploading...")
 
         if get_config().LCS_MYSQL_SSL_ENABLE == 1:
             lcs_conn = cymysql.connect(
@@ -77,7 +79,7 @@ class DbTransfer(object):
         connect_log_list = ServerPool.get_instance().get_servers_connect_log()
         for id in connect_log_list:
             lcs = lcs_conn.cursor()
-            lcs.execute("INSERT INTO `user_connect_log` (`id`,`timestamp`,`node`,`uid`,`uport`,`rname`,`caddr`,`cport`,`raddr`,`rport`,`sport`,`type`,`is_ipv4`) VALUES (NULL, '" +
+            lcs.execute("INSERT INTO `user_connect_log` (`id`,`timestamp`,`node`,`uid`,`uport`,`rname`,`caddr`,`cport`,`raddr`,`rport`,`sport`,`type`,`is_ipv6`) VALUES (NULL, '" +
                         str(id['timestamp']) + "','" +
                         str(nid) + "','" + 
                         str(self.port_uid_table[id['uport']]) + "','" +
@@ -88,10 +90,11 @@ class DbTransfer(object):
                         str(id['raddr']) + "','" +
                         str(id['rport']) + "','" +
                         str(id['sport']) + "','" +
-                        str(id['is_ipv4']) + "','" +
+                        str(id['is_ipv6']) + "','" +
                         str(id['type']) + "')"
             )
             lcs.close()
+        logging.info("Connect logs uploaded.")
 
     #END of Fawkes's LCS Features
 
@@ -339,9 +342,10 @@ class DbTransfer(object):
 
         #Fawkes's LCS Features
         try:
+            logging.info("Starting new thread to upload connect logs...")
             thread.start_new_thread(self.connect_log_update,())
         except:
-            print "Error: unable to start LCS thread"
+            logging.error("Error: unable to start LCS thread")
         #END of Fawkes's LCS Features
 
     def pull_db_all_user(self):
