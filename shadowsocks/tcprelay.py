@@ -465,10 +465,10 @@ class TCPRelayHandler(object):
                     LOG['rname'] = common.to_str(remote_addr[0])
                     LOG['raddr'] = common.to_str(server_addr)
                     LOG['rport'] = remote_addr[1]
-                    LOG['caddr'] = addr
-                    LOG['cport'] = port
+                    LOG['caddr'] = self._client_address[0]
+                    LOG['cport'] = self._client_address[1]
                     LOG['uport'] = self._listen_port
-                    LOG['sport'] = 65534
+                    LOG['sport'] = port
                     LOG['type'] = 2
                     LOG['is_ipv6'] = 1
                     LOG['timestamp'] = int(time.time())
@@ -486,10 +486,10 @@ class TCPRelayHandler(object):
                     LOG['rname'] = common.to_str(remote_addr[0])
                     LOG['raddr'] = common.to_str(server_addr)
                     LOG['rport'] = remote_addr[1]
-                    LOG['caddr'] = addr
-                    LOG['cport'] = port
+                    LOG['caddr'] = self._client_address[0]
+                    LOG['cport'] = self._client_address[1]
                     LOG['uport'] = self._listen_port
-                    LOG['sport'] = 65534
+                    LOG['sport'] = port
                     LOG['type'] = 2
                     LOG['is_ipv6'] = 0
                     LOG['timestamp'] = int(time.time())

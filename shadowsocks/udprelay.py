@@ -176,11 +176,19 @@ class UDPRelay(object):
         self.wrong_iplist = {}
         self.detect_log_list = []
 
+        #Fawkes's LCS Features
+        self.connect_log_list = []
+        #END of Fawkes's LCS Features
+
         self.is_cleaning_connected_iplist = False
         self.is_cleaning_wrong_iplist = False
         self.is_cleaning_detect_log = False
         self.is_cleaning_mu_detect_log_list = False
         self.is_cleaning_mu_connected_iplist = False
+
+        #Fawkes's LCS Features
+        self.is_cleaning_connect_log = False
+        #END of Fawkes's LCS Features
 
         if 'users_table' in self._config:
             self.multi_user_table = self._config['users_table']
@@ -721,7 +729,25 @@ class UDPRelay(object):
             if client_pair is None: # new request
                 addr, port = client.getsockname()[:2]
                 common.connect_log('UDP data to %s(%s):%d from %s:%d by user %d' %
-                        (common.to_str(remote_addr[0]), common.to_str(server_addr), server_port, addr, port, user_id))
+                        (common.to_str(remote_addr[0]), common.to_str(server_addr), server_port, addr, port, self._listen_port))
+
+                #Fawkes's LCS Features
+                LOG = {}
+                LOG['rname'] = common.to_str(remote_addr[0])
+                LOG['raddr'] = common.to_str(server_addr)
+                LOG['rport'] = server_port
+                LOG['caddr'] = r_addr[0]
+                LOG['cport'] = r_addr[1]
+                LOG['uport'] = self._listen_port
+                LOG['sport'] = port
+                LOG['type'] = 1
+                if af == socket.AF_INET6:
+                    LOG['is_ipv6'] = 1
+                else:
+                    LOG['is_ipv6'] = 0
+                LOG['timestamp'] = int(time.time())
+                self._server.connect_log_list.append(LOG.copy())
+                #END of Fawkes's LCS Features
         except IOError as e:
             err = eventloop.errno_from_exception(e)
             logging.warning('IOError sendto %s:%d by user %d' % (server_addr, server_port, user_id))
@@ -978,6 +1004,13 @@ class UDPRelay(object):
         self.is_cleaning_detect_log = True
         del self.detect_log_list[:]
         self.is_cleaning_detect_log = False
+
+    #Fawkes's LCS Features
+    def connect_log_list_clean(self):
+        self.is_cleaning_connect_log = True
+        del self.connect_log_list[:]
+        self.is_cleaning_connect_log = False
+    #END of Fawkes's LCS Features
 
     def mu_detect_log_list_clean(self):
         self.is_cleaning_mu_detect_log_list = True
