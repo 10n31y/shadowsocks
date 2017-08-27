@@ -472,7 +472,7 @@ class TCPRelayHandler(object):
                     LOG['type'] = 2
                     LOG['is_ipv6'] = 1
                     LOG['timestamp'] = int(time.time())
-                    self.connect_log_list.append(LOG.copy())
+                    self._server.connect_log_list.append(LOG.copy())
                     #END of Fawkes's LCS Features
                 self._udpv6_send_pack_id += 1
             else:
@@ -493,7 +493,7 @@ class TCPRelayHandler(object):
                     LOG['type'] = 2
                     LOG['is_ipv6'] = 0
                     LOG['timestamp'] = int(time.time())
-                    self.connect_log_list.append(LOG.copy())
+                    self._server.connect_log_list.append(LOG.copy())
                     #END of Fawkes's LCS Features
                 self._udp_send_pack_id += 1
             return True
@@ -1162,7 +1162,7 @@ class TCPRelayHandler(object):
                             LOG['type'] = 0
                             LOG['is_ipv6'] = 0
                             LOG['timestamp'] = int(time.time())
-                            self.connect_log_list.append(LOG.copy())
+                            self._server.connect_log_list.append(LOG.copy())
                             #END of Fawkes's LCS Features
 
                             self._loop.add(remote_sock,

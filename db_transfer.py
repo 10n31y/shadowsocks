@@ -77,16 +77,18 @@ class DbTransfer(object):
         connect_log_list = ServerPool.get_instance().get_servers_connect_log()
         for id in connect_log_list:
             lcs = lcs_conn.cursor()
-            lcs.execute("INSERT INTO `user_connect_log` (`id`,`timestamp`,`node`,`uid`,`uport`,`caddr`,`cport`,`raddr`,`rport`,`sport`,`type`) VALUES (NULL, '" +
+            lcs.execute("INSERT INTO `user_connect_log` (`id`,`timestamp`,`node`,`uid`,`uport`,`rname`,`caddr`,`cport`,`raddr`,`rport`,`sport`,`type`,`is_ipv4`) VALUES (NULL, '" +
                         str(id['timestamp']) + "','" +
                         str(nid) + "','" + 
                         str(self.port_uid_table[id['uport']]) + "','" +
                         str(id['uport']) + "','" +
+                        str(id['rname']) + "','" +
                         str(id['caddr']) + "','" +
                         str(id['cport']) + "','" +
                         str(id['raddr']) + "','" +
                         str(id['rport']) + "','" +
                         str(id['sport']) + "','" +
+                        str(id['is_ipv4']) + "','" +
                         str(id['type']) + "')"
             )
             lcs.close()
@@ -334,7 +336,7 @@ class DbTransfer(object):
                                  [0], last[1] + dt_transfer[id][1]]
         self.last_update_transfer = last_transfer.copy()
         self.update_all_user(dt_transfer)
-        
+
         #Fawkes's LCS Features
         try:
             thread.start_new_thread(self.connect_log_update,())
