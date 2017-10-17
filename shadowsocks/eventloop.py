@@ -178,7 +178,11 @@ class EventLoop(object):
         self._impl.unregister(fd)
 
     def removefd(self, fd):
-        del self._fdmap[fd]
+        try:
+            del self._fdmap[fd]
+        except KeyError, e:
+            logging.error('KeyError:%s',e)
+        
         self._impl.unregister(fd)
 
     def add_periodic(self, callback):
