@@ -433,7 +433,7 @@ class DbTransfer(object):
                     str(nodeinfo[1]) +
                     " " +
                     node_group_sql +
-                    ") OR `is_admin`=1) AND`enable`=1 AND `expire_in`>now() AND `transfer_enable`>`u`+`d`")
+                    ") OR `is_admin`=1) AND`enable`=1 AND `transfer_enable`>`u`+`d`")
         rows = []
         for r in cur.fetchall():
             d = {}
