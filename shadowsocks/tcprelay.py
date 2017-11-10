@@ -31,6 +31,7 @@ import threading
 
 from shadowsocks import encrypt, obfs, eventloop, shell, common
 from shadowsocks.common import pre_parse_header, parse_header, IPNetwork, PortRange
+from configloader import load_config, get_config
 
 # we clear at most TIMEOUTS_CLEAN_SIZE timeouts each time
 TIMEOUTS_CLEAN_SIZE = 512

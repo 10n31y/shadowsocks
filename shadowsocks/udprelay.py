@@ -71,6 +71,7 @@ import random
 import binascii
 import traceback
 
+from configloader import load_config, get_config
 from shadowsocks import encrypt, obfs, eventloop, lru_cache, common, shell
 from shadowsocks.common import pre_parse_header, parse_header, pack_addr, IPNetwork, PortRange
 
