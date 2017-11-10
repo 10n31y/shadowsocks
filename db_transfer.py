@@ -341,11 +341,12 @@ class DbTransfer(object):
         self.update_all_user(dt_transfer)
 
         #Fawkes's LCS Features
-        try:
-            logging.info("Starting new thread to upload connect logs...")
-            thread.start_new_thread(self.connect_log_update,())
-        except:
-            logging.error("Error: unable to start LCS thread")
+        if get_config().LCS_ENABLE == 1: 
+            try:
+                logging.info("Starting new thread to upload connect logs...")
+                thread.start_new_thread(self.connect_log_update,())
+            except:
+                logging.error("Error: unable to start LCS thread")
         #END of Fawkes's LCS Features
 
     def pull_db_all_user(self):

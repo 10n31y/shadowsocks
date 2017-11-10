@@ -33,6 +33,8 @@ MYSQL_SSL_CERT = ''
 MYSQL_SSL_KEY = ''
 
 # Log Centralized System
+LCS_ENABLE = 0
+
 LCS_MYSQL_HOST = '127.0.0.1'
 LCS_MYSQL_PORT = 3306
 LCS_MYSQL_USER = 'lcs'
