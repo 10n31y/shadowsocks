@@ -470,15 +470,17 @@ class TCPRelayHandler(object):
                 self._remote_sock_v6.sendto(data, (server_addr, remote_addr[1]))
                 if self._udpv6_send_pack_id == 0:
                     addr, port = self._remote_sock_v6.getsockname()[:2]
-                    common.connect_log('UDPv6 sendto %s(%s):%d from %s:%d by user %d' %
-                        (common.to_str(remote_addr[0]), common.to_str(server_addr), remote_addr[1], addr, port, self._server._listen_port))
+                    r_name, r_addr = common.to_str(remote_addr[0]), common.to_str(server_addr)
+                    c_addr, c_port = self._client_address[0], self._client_address[1]
+                    common.connect_log('UDPv6 sendto %s(%s):%d from %s:%d by user %s:%d via port %d' %
+                        (r_name, r_addr, remote_addr[1], addr, port, c_addr, c_port, self._server._listen_port))
                     #Fawkes's LCS Features
                     LOG = {}
-                    LOG['rname'] = common.to_str(remote_addr[0])
-                    LOG['raddr'] = common.to_str(server_addr)
+                    LOG['rname'] = r_name
+                    LOG['raddr'] = r_addr
                     LOG['rport'] = remote_addr[1]
-                    LOG['caddr'] = self._client_address[0]
-                    LOG['cport'] = self._client_address[1]
+                    LOG['caddr'] = c_addr
+                    LOG['cport'] = c_port
                     LOG['uport'] = self._listen_port
                     LOG['sport'] = port
                     LOG['type'] = 2
@@ -492,15 +494,17 @@ class TCPRelayHandler(object):
                 self._remote_sock.sendto(data, (server_addr, remote_addr[1]))
                 if self._udp_send_pack_id == 0:
                     addr, port = self._remote_sock.getsockname()[:2]
+                    r_name, r_addr = common.to_str(remote_addr[0]), common.to_str(server_addr)
+                    c_addr, c_port = self._client_address[0], self._client_address[1]
                     common.connect_log('UDP sendto %s(%s):%d from %s:%d by user %d' %
-                        (common.to_str(remote_addr[0]), common.to_str(server_addr), remote_addr[1], addr, port, self._server._listen_port))
+                        (r_name, r_addr, remote_addr[1], addr, port, c_addr, c_port, self._server._listen_port))
                     #Fawkes's LCS Features
                     LOG = {}
-                    LOG['rname'] = common.to_str(remote_addr[0])
-                    LOG['raddr'] = common.to_str(server_addr)
+                    LOG['rname'] = r_name
+                    LOG['raddr'] = r_addr
                     LOG['rport'] = remote_addr[1]
-                    LOG['caddr'] = self._client_address[0]
-                    LOG['cport'] = self._client_address[1]
+                    LOG['caddr'] = c_addr
+                    LOG['cport'] = c_port
                     LOG['uport'] = self._listen_port
                     LOG['sport'] = port
                     LOG['type'] = 2
@@ -845,6 +849,7 @@ class TCPRelayHandler(object):
                 server_info = self._protocol.get_server_info()
                 server_info.buffer_size = self._recv_buffer_size
             connecttype, addrtype, remote_addr, remote_port, header_length = header_result
+            '''
             if not self._server._connect_hex_data:
                 common.connect_log(
                     '%s connecting %s:%d from %s:%d via port %d' %
@@ -867,6 +872,7 @@ class TCPRelayHandler(object):
                         self._client_address[0],
                         self._client_address[1],
                         self._server._listen_port))
+            '''
             if not is_error:
                 if not self._server.is_pushing_detect_text_list:
                     for id in self._server.detect_text_list:
@@ -1161,15 +1167,17 @@ class TCPRelayHandler(object):
                                     raise e
 
                             addr, port = self._remote_sock.getsockname()[:2]
-                            common.connect_log('TCP connecting %s(%s):%d from %s:%d by user %d' %
-                                (common.to_str(self._remote_address[0]), common.to_str(remote_addr), remote_port, addr, port, self._server._listen_port))
+                            r_name, r_addr = common.to_str(self._remote_address[0]), common.to_str(remote_addr)
+                            c_addr, c_port = self._client_address[0], self._client_address[1]
+                            common.connect_log('TCP connecting %s(%s):%d from %s:%d by user %s:%d via port %d' %
+                                (r_name, r_addr, remote_port, addr, port, c_addr, c_port, self._server._listen_port))
                             #Fawkes's LCS Features
                             LOG = {}
-                            LOG['rname'] = common.to_str(self._remote_address[0])
-                            LOG['raddr'] = common.to_str(remote_addr)
+                            LOG['rname'] = r_name
+                            LOG['raddr'] = r_addr
                             LOG['rport'] = remote_port
-                            LOG['caddr'] = self._client_address[0]
-                            LOG['cport'] = self._client_address[1]
+                            LOG['caddr'] = c_addr
+                            LOG['cport'] = c_port
                             LOG['uport'] = self._server._listen_port
                             LOG['sport'] = port
                             LOG['type'] = 0

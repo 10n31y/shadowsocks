@@ -677,6 +677,7 @@ class UDPRelay(object):
                                     r_addr[0],
                                     r_addr[1],
                                     self._listen_port))
+                '''
                 if not self._connect_hex_data:
                     common.connect_log('UDP data to %s:%d from %s:%d via port %d' %
                                        (common.to_str(server_addr), server_port,
@@ -690,6 +691,7 @@ class UDPRelay(object):
                             r_addr[1],
                             self._listen_port,
                             binascii.hexlify(data)))
+                '''
                 if self._config['is_multi_user'] != 2:
                     if common.to_str(r_addr[0]) in self.wrong_iplist and r_addr[
                             0] != 0 and self.is_cleaning_wrong_iplist == False:
@@ -729,16 +731,18 @@ class UDPRelay(object):
             self.add_transfer_u(client_uid, len(data))
             if client_pair is None: # new request
                 addr, port = client.getsockname()[:2]
-                common.connect_log('UDP data to %s(%s):%d from %s:%d by user %d' %
-                        (common.to_str(remote_addr[0]), common.to_str(server_addr), server_port, addr, port, self._listen_port))
+                _r_name, _r_addr = common.to_str(remote_addr[0]), common.to_str(server_addr)
+                c_addr, c_port = r_addr[0], r_addr[1]
+                common.connect_log('UDP data to %s(%s):%d from %s:%d by user %s:%d via port %d' %
+                        (_r_name, _r_addr, server_port, addr, port, c_addr, c_port, self._listen_port))
 
                 #Fawkes's LCS Features
                 LOG = {}
-                LOG['rname'] = common.to_str(remote_addr[0])
-                LOG['raddr'] = common.to_str(server_addr)
+                LOG['rname'] = _r_name
+                LOG['raddr'] = _r_addr
                 LOG['rport'] = server_port
-                LOG['caddr'] = r_addr[0]
-                LOG['cport'] = r_addr[1]
+                LOG['caddr'] = c_addr
+                LOG['cport'] = c_port
                 LOG['uport'] = self._listen_port
                 LOG['sport'] = port
                 LOG['type'] = 1
